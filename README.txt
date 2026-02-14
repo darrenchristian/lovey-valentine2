@@ -1,16 +1,20 @@
 VALENTINE'S DAY WEB PAGE UPDATES
 
-I've updated your web page to include a beautiful background image transition!
+I've updated your web page to include background music!
 
-HOW TO ADD YOUR BACKGROUND IMAGE:
-1.  Find the image you want to use (a portrait/vertical image works best).
-2.  Rename the image file to "background.jpg" (ensure the extension matches).
+HOW TO ADD YOUR MUSIC:
+1.  Find the music file you want to use (MP3 format is best).
+2.  Rename the file to "music.mp3".
 3.  Place this file in the SAME folder as your index.html file: 
     c:\Users\Administrator\Documents\Valentines2\
 
-That's it! When you find all 5 hearts in the game, the background will smoothly transition to your image.
+HOW TO ADD YOUR BACKGROUND IMAGE:
+1.  Find your photo (portrait/vertical works best).
+2.  Rename it to "background.jpg".
+3.  Place it in the same folder.
 
-If you want to use a different file name or format (like .png):
-1.  Open index.html in a text editor.
-2.  Search for "body.found-hearts".
-3.  Change "background.jpg" to your filename.
+NOTE ON AUTOPLAY:
+Most modern browsers (like Chrome and Safari) BLOCK music from playing automatically until the user interacts with the page (clicks something).
+- I have set it to TRY playing immediately.
+- If blocked, it will wait for the first "click" anywhere on the page to start playing.
+- There is also a small music button 🎵 in the bottom right corner to toggle it manually.

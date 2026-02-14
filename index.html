@@ -26,10 +26,14 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #fd68d8 0%, #d9a0ff 99%, #fecfef 100%);
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            /* Allow growth */
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+            overflow-y: auto;
+            /* Allow vertical scroll */
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             color: var(--text-color);
         }
@@ -94,13 +98,16 @@
         #game-stage {
             position: relative;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
+            /* changed from height: 100% */
             z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             transition: opacity 1s ease;
+            padding: 40px 10px;
+            /* Add padding for scroll overlap */
         }
 
         #game-stage.hidden {
@@ -428,6 +435,15 @@
         <div class="shape"></div>
     </div>
 
+    <!-- Background Music -->
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Music Toggle Button -->
+    <button id="music-toggle" class="music-btn">🔇</button>
+
     <!-- Penalty Message -->
     <div id="penalty-msg" class="penalty-message">
         Oops! Wait <span id="penalty-timer">3</span>s...
@@ -439,7 +455,7 @@
             <h1>Hunt for my heart</h1>
             <p>There are 6 hearts hidden within these emojis.
                 Find them all to unlock the secret of where my heart stays!</p>
-            <div class="score-board">Hearts Found: <span id="counter">0</span>/6</div>
+            <div class="score-board">Hearts Found: <span id="counter">0</span>/7</div>
         </div>
 
         <!-- Hiding Spots Container -->
@@ -629,6 +645,64 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
+        .music-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+            /* High z-index to be clickable */
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s, background 0.3s;
+            color: var(--primary-color);
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+            background: white;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .instructions h1 {
+                font-size: 2rem;
+            }
+
+            .instructions p {
+                font-size: 1rem;
+            }
+
+            .hiding-spot {
+                font-size: 2.8rem;
+                /* Smaller emojis on mobile */
+            }
+
+            .hiding-spots-container {
+                gap: 1rem;
+                /* Smaller gap */
+                padding-bottom: 80px;
+                /* Space for music button */
+            }
+
+            .letter-preview {
+                width: 80vw;
+            }
+
+            .envelope {
+                transform: scale(0.8);
+            }
+        }
+
         .penalty-message.active {
             opacity: 1;
             animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -704,19 +778,58 @@
 
     <script>
         let heartsFound = 0;
-        const totalHearts = 6;
+        const totalHearts = 7;
         let isLocked = false; // New lock state
 
         // Items to hide things in
-        const hidingItems = ['🥩', '🎁', '☕', '🥖', '🧸', '🐱', '💐', '🍫', '🎵', '💌', '🌳', '💋', '🍗', '🍰', '🌹', '🎮'];
+        const hidingItems = ['🥩', '🎁', '☕', '🥖', '🧸', '🐱', '💐', '🍫', '🎵', '💌', '🌳', '💋', '🚗', '🍰', '🌹', '🎮', '🍕', '⌨️', '📷', '🍗', '👓'];
 
         // SPECIFIC WINNING EMOJIS (Must be exactly 5, and must exist in hidingItems)
-        const winningEmojis = ['🥩', '🐱', '🎮', '💋', '☕', '🌳'];
+        const winningEmojis = ['🥩', '🐱', '🎮', '💋', '☕', '🌳', '💌'];
 
         let spots = [];
 
         window.onload = function () {
             initGame();
+            playMusic();
+        };
+
+        function playMusic() {
+            const audio = document.getElementById('bg-music');
+            const btn = document.getElementById('music-toggle');
+            audio.volume = 0.5; // Set reasonable volume
+
+            // Try to autoplay
+            const promise = audio.play();
+
+            if (promise !== undefined) {
+                promise.then(() => {
+                    // Autoplay started!
+                    btn.innerText = '🎵';
+                }).catch(error => {
+                    // Autoplay was prevented.
+                    console.log("Autoplay prevented. Waiting for user interaction.");
+                    btn.innerText = '🔇';
+                    // Force play on first interaction
+                    document.body.addEventListener('click', () => {
+                        audio.play();
+                        btn.innerText = '🎵';
+                    }, { once: true });
+                });
+            }
+        }
+
+        // Toggle button logic
+        document.getElementById('music-toggle').onclick = function (e) {
+            e.stopPropagation(); // Prevent triggering other clicks
+            const audio = document.getElementById('bg-music');
+            if (audio.paused) {
+                audio.play();
+                this.innerText = '🎵';
+            } else {
+                audio.pause();
+                this.innerText = '🔇';
+            }
         };
 
         function initGame() {
@@ -782,7 +895,7 @@
                 const msg = document.getElementById('penalty-msg');
                 msg.classList.add('active');
 
-                let secondsLeft = 3;
+                let secondsLeft = 5;
                 document.getElementById('penalty-timer').innerText = secondsLeft;
 
                 const timer = setInterval(() => {
